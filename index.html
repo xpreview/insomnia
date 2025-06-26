@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>INSOMNIA</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: black;
+      height: 100%;
+    }
+
+    canvas {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    #centerText {
+      position: absolute;
+      top: 45%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Courier New', monospace;
+      font-size: 80px;
+      color: red;
+      text-shadow: 0 0 10px red, 0 0 20px red;
+      opacity: 0;
+      animation: flicker 4s infinite;
+      z-index: 2;
+    }
+
+    @keyframes flicker {
+      0%, 19.999%, 22%, 62.999%, 64%, 100% {
+        opacity: 0;
+      }
+      20%, 21.999%, 63%, 63.999% {
+        opacity: 1;
+      }
+    }
+
+    #typewriterText {
+      position: absolute;
+      bottom: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Courier New', monospace;
+      font-size: 30px;
+      color: red;
+      text-shadow: 0 0 10px red;
+      white-space: nowrap;
+      overflow: hidden;
+      border-right: 2px solid red;
+      width: 0;
+      animation: none;
+      z-index: 3;
+    }
+
+    #jumpscare {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: red;
+      color: black;
+      font-size: 100px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Impact, sans-serif;
+      z-index: 99;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+
+    #hackedText {
+      position: absolute;
+      top: 5%;
+      left: 10px;
+      font-family: monospace;
+      font-size: 16px;
+      color: #00ff00;
+      white-space: pre;
+      z-index: 1;
+      opacity: 0.7;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="matrixCanvas"></canvas>
+  <div id="centerText">INSOMNIA</div>
+  <div id="typewriterText"></div>
+  <div id="jumpscare">WAKE UP!</div>
+  <div id="hackedText"></div>
+
+  <audio id="scream" preload="auto">
+    <source src="https://assets.mixkit.co/sfx/preview/mixkit-scary-scream-1029.mp3" type="audio/mpeg" />
+  </audio>
+
+  <script>
+    // Matrix code background
+    const canvas = document.getElementById('matrixCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const letters = "アァイィウヴエエェオカガキギクグケゲコゴサザABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const fontSize = 14;
+    const columns = Math.floor(canvas.width / fontSize);
+    const drops = Array(columns).fill(1);
+
+    function drawMatrix() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#0F0";
+      ctx.font = fontSize + "px monospace";
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = letters.charAt(Math.floor(Math.random() * letters.length));
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+    }
+    setInterval(drawMatrix, 33);
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    // Typewriter horror messages
+    const messages = [
+      "You cannot wake up...",
+      "This is not a dream.",
+      "Insomnia is watching you.",
+      "It's already too late...",
+      "There’s someone behind you.",
+      "You're not alone...",
+      "Open your eyes.",
+      "Why are you still here?",
+      "We are inside your mind."
+    ];
+    const typewriter = document.getElementById("typewriterText");
+    let messageIndex = 0;
+
+    function showMessage() {
+      const message = messages[messageIndex];
+      typewriter.style.width = "0";
+      typewriter.textContent = "";
+      let charIndex = 0;
+
+      const typeInterval = setInterval(() => {
+        if (charIndex < message.length) {
+          typewriter.textContent += message.charAt(charIndex);
+          charIndex++;
+          typewriter.style.width = charIndex + "ch";
+        } else {
+          clearInterval(typeInterval);
+          setTimeout(() => {
+            typewriter.textContent = "";
+            messageIndex = (messageIndex + 1) % messages.length;
+            showMessage();
+          }, 1000);
+        }
+      }, 50);
+    }
+    showMessage();
+
+    // Jumpscare after 30 seconds
+    const screamAudio = document.getElementById("scream");
+    const jumpscareDiv = document.getElementById("jumpscare");
+
+    setTimeout(() => {
+      screamAudio.play().catch(e => console.warn("Autoplay blocked"));
+      jumpscareDiv.style.opacity = 1;
+      setTimeout(() => {
+        jumpscareDiv.style.opacity = 0;
+      }, 3000);
+    }, 30000);
+
+    // Fake hacked terminal text
+    const hackedLines = [
+      "[ACCESSING SYSTEM FILES...]",
+      "[LOCATING USER: INSOMNIA]",
+      "[DOWNLOADING MEMORIES...]",
+      "[ERROR: CORRUPTED THOUGHTS DETECTED]",
+      "[FORCE WAKE-UP FAILED]",
+      "[LOOPING...]", "[LOOPING...]", "[LOOPING...]"
+    ];
+    const hackedText = document.getElementById("hackedText");
+
+    let hackedIndex = 0;
+    function showHacked() {
+      if (hackedIndex < hackedLines.length) {
+        hackedText.textContent += hackedLines[hackedIndex] + "\n";
+        hackedIndex++;
+        setTimeout(showHacked, 2500);
+      }
+    }
+    showHacked();
+  </script>
+</body>
+</html>
