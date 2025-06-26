@@ -177,12 +177,16 @@
     const jumpscareDiv = document.getElementById("jumpscare");
 
     setTimeout(() => {
-      screamAudio.play().catch(e => console.warn("Autoplay blocked"));
-      jumpscareDiv.style.opacity = 1;
-      setTimeout(() => {
-        jumpscareDiv.style.opacity = 0;
-      }, 3000);
-    }, 30000);
+  screamAudio.play().catch(e => console.warn("Autoplay blocked"));
+  jumpscareDiv.style.opacity = 1;
+  setTimeout(() => {
+    jumpscareDiv.style.opacity = 0;
+
+    // 🔁 Auto redirect fast after "WAKE UP!" ends
+    window.location.href = "https://xpreview.github.io/Dominant-Submissive-Contract-Generator/"; // <-- change this link
+
+  }, 3000); // 3 seconds after jumpscare shows
+}, 30000); // Jumpscare starts at 30 seconds
 
     // Fake hacked terminal text
     const hackedLines = [
